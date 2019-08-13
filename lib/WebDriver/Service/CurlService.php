@@ -50,6 +50,13 @@ class CurlService implements CurlServiceInterface
                 break;
 
             case 'POST':
+                // Workaround for bug https://bugs.chromium.org/p/chromedriver/issues/detail?id=2943 in Chrome 75.
+                // Chromedriver now erroneously does not allow POST body to be empty even for the JsonWire protocol.
+                // If the command POST is empty, here we send some dummy data as a workaround.
+                // Fix 'borrowed' from https://github.com/facebook/php-webdriver/commit/0f3933c41606fd076d79ff064bc0def2b774e67d#diff-1ee156e0c33356b17f4dc2b3faec69ee.
+                if (empty($parameters)) {
+                    $parameters = ['_' => '_'];
+                }
                 if ($parameters && is_array($parameters)) {
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($parameters));
                 } else {
