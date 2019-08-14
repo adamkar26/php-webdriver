@@ -63,6 +63,13 @@ class WebDriver extends AbstractWebDriver implements WebDriverInterface
             $parameters['requiredCapabilities'] = $requiredCapabilities;
         }
 
+        // Hotfix: W3C WebDriver protocol is not yet supported by php-webdriver, so we must force Chromedriver to
+        // not use the W3C protocol by default (which is what Chromedriver does starting with version 75).
+        // Fix 'borrowed' from https://github.com/facebook/php-webdriver/commit/0f3933c41606fd076d79ff064bc0def2b774e67d#diff-1ee156e0c33356b17f4dc2b3faec69ee.
+        if ($parameters['desiredCapabilities']['browserName'] === Browser::CHROME) {
+            $parameters['desiredCapabilities']['chromeOptions']['w3c'] = false;
+        }
+
         $result = $this->curl(
             'POST',
             '/session',
